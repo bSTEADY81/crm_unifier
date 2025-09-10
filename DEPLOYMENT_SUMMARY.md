@@ -84,7 +84,7 @@ PII_ENCRYPTION_KEY=8+xBgPKUTwR/MZmefW214Xud0gkHn+JAFB6Wh8YHFi8=
 ## 🌐 Current URLs
 
 **Frontend Deployment**:
-- ✅ **Frontend**: `https://crm-unifier-2.vercel.app`
+- ✅ **Frontend**: `https://frontend-7aei55ao9-bjs-projects-4a11c607.vercel.app`
 - 🔄 **Backend API**: `https://api.yourdomain.com/api/v1` (to be deployed)
 - 🔄 **Health Check**: `https://api.yourdomain.com/health` (to be deployed)
 
