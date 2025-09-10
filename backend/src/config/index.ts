@@ -12,9 +12,15 @@ try {
 // Debug: Log which critical env vars are available (without values for security)
 console.log('Environment check:', {
   hasDatabase: !!process.env.DATABASE_URL,
+  databaseLength: process.env.DATABASE_URL?.length,
   hasRedis: !!process.env.REDIS_URL,
+  redisLength: process.env.REDIS_URL?.length,
   hasJwtSecret: !!process.env.JWT_SECRET,
+  jwtSecretLength: process.env.JWT_SECRET?.length,
   hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET,
+  nextAuthSecretLength: process.env.NEXTAUTH_SECRET?.length,
+  hasPiiKey: !!process.env.PII_ENCRYPTION_KEY,
+  piiKeyLength: process.env.PII_ENCRYPTION_KEY?.length,
   nodeEnv: process.env.NODE_ENV,
   port: process.env.PORT
 });
@@ -23,12 +29,12 @@ const configSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().default('3001').transform(Number),
   
-  // Database
-  DATABASE_URL: z.string().url(),
+  // Database - more flexible validation for PostgreSQL URLs with encoded chars
+  DATABASE_URL: z.string().min(10),
   DATABASE_URL_TEST: z.string().url().optional(),
   
-  // Redis
-  REDIS_URL: z.string().url(),
+  // Redis - more flexible validation for Redis URLs
+  REDIS_URL: z.string().min(10),
   REDIS_URL_TEST: z.string().url().optional(),
   
   // Auth
@@ -51,7 +57,7 @@ const configSchema = z.object({
   
   // Audit
   AUDIT_RETENTION_DAYS: z.string().default('2555').transform(Number),
-  PII_ENCRYPTION_KEY: z.string().length(32).optional(),
+  PII_ENCRYPTION_KEY: z.string().min(32).optional(),
 });
 
 const env = configSchema.parse(process.env);
