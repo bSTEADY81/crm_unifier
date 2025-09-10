@@ -1,0 +1,26 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "CRM Unifier - Development",
+      "Group": "Development",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "crm_unifier",
+      "Username": "crm",
+      "PassFile": "/tmp/pgpassfile",
+      "SSLMode": "prefer",
+      "Comment": "CRM Unifier development database"
+    },
+    "2": {
+      "Name": "CRM Unifier - Test",
+      "Group": "Testing",
+      "Host": "postgres-test",
+      "Port": 5432,
+      "MaintenanceDB": "crm_unifier_test",
+      "Username": "crm",
+      "PassFile": "/tmp/pgpassfile",
+      "SSLMode": "prefer",
+      "Comment": "CRM Unifier test database"
+    }
+  }
+}

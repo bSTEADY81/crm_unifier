@@ -1,0 +1,818 @@
+openapi: 3.0.3
+info:
+  title: CRM Unifier API
+  description: Unified CRM Correspondence Platform API
+  version: 0.1.0
+  contact:
+    name: API Support
+    email: api@example.com
+
+servers:
+  - url: http://localhost:3001/api/v1
+    description: Development server
+  - url: https://api.crm-unifier.com/v1
+    description: Production server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      summary: User login
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /customers:
+    get:
+      summary: List customers
+      tags: [Customers]
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by name, email, or phone
+      responses:
+        '200':
+          description: Customer list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerList'
+
+    post:
+      summary: Create customer
+      tags: [Customers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerRequest'
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+
+  /customers/{customerId}:
+    get:
+      summary: Get customer details
+      tags: [Customers]
+      parameters:
+        - $ref: '#/components/parameters/CustomerIdParam'
+      responses:
+        '200':
+          description: Customer details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /customers/{customerId}/timeline:
+    get:
+      summary: Get customer message timeline
+      tags: [Customers, Messages]
+      parameters:
+        - $ref: '#/components/parameters/CustomerIdParam'
+        - name: channel
+          in: query
+          schema:
+            $ref: '#/components/schemas/ChannelType'
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Message timeline
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageTimeline'
+
+  /customers/{customerId}/identities:
+    post:
+      summary: Link identity to customer
+      tags: [Customers, Identities]
+      parameters:
+        - $ref: '#/components/parameters/CustomerIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkIdentityRequest'
+      responses:
+        '201':
+          description: Identity linked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identity'
+
+  /messages:
+    get:
+      summary: Search messages
+      tags: [Messages]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query
+        - name: channel
+          in: query
+          schema:
+            $ref: '#/components/schemas/ChannelType'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageList'
+
+  /conversations:
+    get:
+      summary: List conversations
+      tags: [Conversations]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ConversationStatus'
+        - name: assigned_to
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Conversation list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationList'
+
+  /conversations/{conversationId}/assign:
+    post:
+      summary: Assign conversation to staff
+      tags: [Conversations]
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignConversationRequest'
+      responses:
+        '200':
+          description: Assignment successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationAssignment'
+
+  /conversations/{conversationId}/tags:
+    put:
+      summary: Update conversation tags
+      tags: [Conversations]
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Tags updated
+
+  /providers:
+    get:
+      summary: List providers
+      tags: [Providers]
+      responses:
+        '200':
+          description: Provider list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderList'
+
+    post:
+      summary: Configure provider
+      tags: [Providers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigureProviderRequest'
+      responses:
+        '201':
+          description: Provider configured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
+
+  /providers/{providerId}/health:
+    get:
+      summary: Check provider health
+      tags: [Providers]
+      parameters:
+        - name: providerId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderHealth'
+
+  /webhooks/{provider}:
+    post:
+      summary: Receive provider webhook
+      tags: [Webhooks]
+      security: []
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [twilio, gmail, whatsapp, facebook, instagram]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook processed
+        '401':
+          description: Invalid signature
+
+  /audit/events:
+    get:
+      summary: Query audit events
+      tags: [Audit]
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Audit events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditEventList'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    CustomerIdParam:
+      name: customerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  schemas:
+    ChannelType:
+      type: string
+      enum: [sms, email, voice, whatsapp, facebook, instagram]
+
+    MessageDirection:
+      type: string
+      enum: [inbound, outbound]
+
+    ConversationStatus:
+      type: string
+      enum: [active, archived, assigned]
+
+    ProviderType:
+      type: string
+      enum: [twilio_sms, gmail, twilio_voice, whatsapp, facebook, instagram]
+
+    ProviderStatus:
+      type: string
+      enum: [active, inactive, error]
+
+    UserRole:
+      type: string
+      enum: [admin, staff, viewer]
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+        lastLogin:
+          type: string
+          format: date-time
+
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        displayName:
+          type: string
+        identities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Identity'
+        metadata:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateCustomerRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        displayName:
+          type: string
+        metadata:
+          type: object
+
+    CustomerList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Identity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [phone, email, social]
+        value:
+          type: string
+        rawValue:
+          type: string
+        provider:
+          type: string
+        verified:
+          type: boolean
+        linkedAt:
+          type: string
+          format: date-time
+
+    LinkIdentityRequest:
+      type: object
+      required: [type, value]
+      properties:
+        type:
+          type: string
+          enum: [phone, email, social]
+        value:
+          type: string
+        provider:
+          type: string
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        providerMessageId:
+          type: string
+        customerId:
+          type: string
+          format: uuid
+        conversationId:
+          type: string
+          format: uuid
+        channel:
+          $ref: '#/components/schemas/ChannelType'
+        direction:
+          $ref: '#/components/schemas/MessageDirection'
+        from:
+          type: string
+        to:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        body:
+          type: string
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        providerMeta:
+          type: object
+        status:
+          type: string
+          enum: [received, processed, failed]
+
+    MessageList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    MessageTimeline:
+      type: object
+      properties:
+        customerId:
+          type: string
+          format: uuid
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        filename:
+          type: string
+        size:
+          type: integer
+        url:
+          type: string
+        thumbnailUrl:
+          type: string
+
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        threadKey:
+          type: string
+        customerId:
+          type: string
+          format: uuid
+        customer:
+          $ref: '#/components/schemas/Customer'
+        channel:
+          $ref: '#/components/schemas/ChannelType'
+        lastMessageAt:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+        status:
+          $ref: '#/components/schemas/ConversationStatus'
+        assignment:
+          $ref: '#/components/schemas/ConversationAssignment'
+
+    ConversationList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Conversation'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ConversationAssignment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        conversationId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        user:
+          $ref: '#/components/schemas/User'
+        assignedAt:
+          type: string
+          format: date-time
+        assignedBy:
+          type: string
+          format: uuid
+        notes:
+          type: string
+
+    AssignConversationRequest:
+      type: object
+      required: [userId]
+      properties:
+        userId:
+          type: string
+          format: uuid
+        notes:
+          type: string
+
+    Provider:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/ProviderType'
+        status:
+          $ref: '#/components/schemas/ProviderStatus'
+        lastHealthCheck:
+          type: string
+          format: date-time
+        errorMessage:
+          type: string
+        webhookUrl:
+          type: string
+
+    ProviderList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Provider'
+
+    ConfigureProviderRequest:
+      type: object
+      required: [name, type, config]
+      properties:
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/ProviderType'
+        config:
+          type: object
+          description: Provider-specific configuration
+
+    ProviderHealth:
+      type: object
+      properties:
+        providerId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/ProviderStatus'
+        lastCheck:
+          type: string
+          format: date-time
+        lastReceived:
+          type: string
+          format: date-time
+        messagesProcessed:
+          type: integer
+        errorCount:
+          type: integer
+        errorMessage:
+          type: string
+
+    AuditEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        userId:
+          type: string
+          format: uuid
+        user:
+          $ref: '#/components/schemas/User'
+        action:
+          type: string
+        resourceType:
+          type: string
+        resourceId:
+          type: string
+        metadata:
+          type: object
+        ipAddress:
+          type: string
+        userAgent:
+          type: string
+
+    AuditEventList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEvent'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

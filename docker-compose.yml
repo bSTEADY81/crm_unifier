@@ -1,0 +1,171 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: crm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: crm_unifier
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8"
+      PGTZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/prisma/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./docker/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm -d crm_unifier"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - crm-network
+
+  # Redis for Queues and Cache
+  redis:
+    image: redis:7-alpine
+    container_name: crm-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - crm-network
+
+  # Development Database for Testing
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: crm-postgres-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: crm_unifier_test
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8"
+      PGTZ: UTC
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./backend/prisma/init.sql:/docker-entrypoint-initdb.d/init.sql
+    profiles:
+      - test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm -d crm_unifier_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - crm-network
+
+  # Redis for Testing
+  redis-test:
+    image: redis:7-alpine
+    container_name: crm-redis-test
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_test_data:/data
+    command: redis-server --save "" --appendonly no
+    profiles:
+      - test
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - crm-network
+
+  # pgAdmin for Database Management (Development)
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: crm-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@crm.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json
+    profiles:
+      - dev-tools
+    depends_on:
+      - postgres
+    networks:
+      - crm-network
+
+  # Redis Commander for Redis Management (Development)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: crm-redis-commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379
+      HTTP_USER: admin
+      HTTP_PASSWORD: admin
+    ports:
+      - "8081:8081"
+    profiles:
+      - dev-tools
+    depends_on:
+      - redis
+    networks:
+      - crm-network
+
+  # Mailpit for Email Testing (Development)
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: crm-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP port
+      - "8025:8025" # Web UI port
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    profiles:
+      - dev-tools
+    networks:
+      - crm-network
+
+volumes:
+  postgres_data:
+    driver: local
+  postgres_test_data:
+    driver: local
+  redis_data:
+    driver: local
+  redis_test_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  crm-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

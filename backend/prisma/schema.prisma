@@ -1,0 +1,272 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum IdentityType {
+  phone
+  email
+  social
+}
+
+enum ChannelType {
+  sms
+  email
+  voice
+  whatsapp
+  facebook
+  instagram
+}
+
+enum MessageDirection {
+  inbound
+  outbound
+}
+
+enum MessageStatus {
+  received
+  processed
+  failed
+}
+
+enum ConversationStatus {
+  active
+  archived
+  assigned
+}
+
+enum ProviderType {
+  twilio_sms
+  gmail
+  twilio_voice
+  whatsapp
+  facebook
+  instagram
+}
+
+enum ProviderStatus {
+  active
+  inactive
+  error
+}
+
+enum UserRole {
+  admin
+  staff
+  viewer
+}
+
+enum WebhookStatus {
+  active
+  inactive
+}
+
+// Models
+model Customer {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(255)
+  displayName String?  @map("display_name") @db.VarChar(100)
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  identities    Identity[]
+  messages      Message[]
+  conversations Conversation[]
+
+  @@map("customers")
+  @@index([name])
+  @@index([createdAt(sort: Desc)])
+}
+
+model Identity {
+  id         String      @id @default(uuid()) @db.Uuid
+  customerId String      @map("customer_id") @db.Uuid
+  type       IdentityType
+  value      String      @db.VarChar(255)
+  rawValue   String      @map("raw_value") @db.VarChar(255)
+  provider   String?     @db.VarChar(50)
+  verified   Boolean     @default(false)
+  linkedAt   DateTime    @default(now()) @map("linked_at") @db.Timestamptz
+
+  // Relations
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([type, value])
+  @@map("identities")
+  @@index([customerId])
+}
+
+model Message {
+  id                 String            @id @default(uuid()) @db.Uuid
+  providerMessageId  String            @map("provider_message_id") @db.VarChar(255)
+  providerId         String            @map("provider_id") @db.Uuid
+  customerId         String?           @map("customer_id") @db.Uuid
+  conversationId     String?           @map("conversation_id") @db.Uuid
+  channel            ChannelType
+  direction          MessageDirection
+  fromIdentifier     String            @map("from_identifier") @db.VarChar(255)
+  toIdentifier       String            @map("to_identifier") @db.VarChar(255)
+  threadKey          String?           @map("thread_key") @db.VarChar(255)
+  timestamp          DateTime          @db.Timestamptz
+  body               String?           @db.Text
+  providerMeta       Json              @default("{}") @map("provider_meta")
+  status             MessageStatus     @default(received)
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  provider     Provider     @relation(fields: [providerId], references: [id])
+  customer     Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  attachments  Attachment[]
+
+  @@unique([providerId, providerMessageId])
+  @@map("messages")
+  @@index([customerId, timestamp(sort: Desc)])
+  @@index([conversationId])
+  @@index([channel])
+  @@index([timestamp(sort: Desc)])
+}
+
+model Conversation {
+  id            String             @id @default(uuid()) @db.Uuid
+  threadKey     String             @unique @map("thread_key") @db.VarChar(255)
+  customerId    String             @map("customer_id") @db.Uuid
+  channel       ChannelType
+  lastMessageAt DateTime?          @map("last_message_at") @db.Timestamptz
+  tags          String[]           @default([])
+  status        ConversationStatus @default(active)
+  createdAt     DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime           @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  customer   Customer                 @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  messages   Message[]
+  assignment ConversationAssignment?
+
+  @@map("conversations")
+  @@index([customerId])
+  @@index([status])
+  @@index([lastMessageAt(sort: Desc)])
+}
+
+model Attachment {
+  id           String   @id @default(uuid()) @db.Uuid
+  messageId    String   @map("message_id") @db.Uuid
+  type         String   @db.VarChar(50)
+  filename     String?  @db.VarChar(255)
+  size         Int?
+  storageUrl   String   @map("storage_url") @db.Text
+  thumbnailUrl String?  @map("thumbnail_url") @db.Text
+  metadata     Json     @default("{}")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+  @@index([messageId])
+}
+
+model User {
+  id        String    @id @default(uuid()) @db.Uuid
+  email     String    @unique @db.VarChar(255)
+  name      String    @db.VarChar(255)
+  role      UserRole
+  metadata  Json      @default("{}")
+  lastLogin DateTime? @map("last_login") @db.Timestamptz
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  auditEvents         AuditEvent[]
+  assignedBy          ConversationAssignment[] @relation("AssignedBy")
+  conversationAssignments ConversationAssignment[] @relation("AssignedTo")
+
+  @@map("users")
+  @@index([email])
+  @@index([role])
+}
+
+model Provider {
+  id              String         @id @default(uuid()) @db.Uuid
+  name            String         @unique @db.VarChar(100)
+  type            ProviderType
+  config          Json // Encrypted credentials
+  status          ProviderStatus @default(inactive)
+  lastHealthCheck DateTime?      @map("last_health_check") @db.Timestamptz
+  errorMessage    String?        @map("error_message") @db.Text
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  messages Message[]
+  webhooks Webhook[]
+
+  @@map("providers")
+  @@index([type])
+  @@index([status])
+}
+
+model Webhook {
+  id           String        @id @default(uuid()) @db.Uuid
+  providerId   String        @map("provider_id") @db.Uuid
+  endpointUrl  String        @map("endpoint_url") @db.Text
+  secret       String?       @db.Text // Encrypted
+  events       String[]      @default([])
+  status       WebhookStatus @default(active)
+  lastReceived DateTime?     @map("last_received") @db.Timestamptz
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@map("webhooks")
+  @@index([providerId])
+}
+
+model AuditEvent {
+  id           String   @id @default(uuid()) @db.Uuid
+  timestamp    DateTime @default(now()) @db.Timestamptz
+  userId       String?  @map("user_id") @db.Uuid
+  action       String   @db.VarChar(100)
+  resourceType String   @map("resource_type") @db.VarChar(50)
+  resourceId   String?  @map("resource_id") @db.VarChar(255)
+  metadata     Json     @default("{}")
+  ipAddress    String?  @map("ip_address") @db.Inet
+  userAgent    String?  @map("user_agent") @db.Text
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_events")
+  @@index([userId, timestamp(sort: Desc)])
+  @@index([resourceType, resourceId])
+  @@index([timestamp(sort: Desc)])
+}
+
+model ConversationAssignment {
+  id             String   @id @default(uuid()) @db.Uuid
+  conversationId String   @unique @map("conversation_id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  assignedAt     DateTime @default(now()) @map("assigned_at") @db.Timestamptz
+  assignedBy     String   @map("assigned_by") @db.Uuid
+  notes          String?  @db.Text
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation("AssignedTo", fields: [userId], references: [id], onDelete: Cascade)
+  assigner     User         @relation("AssignedBy", fields: [assignedBy], references: [id])
+
+  @@map("conversation_assignments")
+  @@index([userId])
+}

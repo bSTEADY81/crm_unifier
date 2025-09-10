@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+coverage/
+
+# Generated files
+backend/prisma/client/
+*.d.ts
+
+# Config files
+*.config.js
+*.config.mjs
+next.config.mjs
+postcss.config.mjs
+tailwind.config.ts
+vitest.config.ts
+playwright.config.ts
+
+# Test results
+test-results/
+playwright-report/
+
+# Docker and infrastructure
+docker/
+scripts/
+
+# Environment files
+.env*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Cache
+.eslintcache
+.cache/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

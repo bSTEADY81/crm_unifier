@@ -1,0 +1,40 @@
+{
+  "name": "crm-unifier",
+  "version": "0.1.0",
+  "description": "Unified CRM Correspondence Platform",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "shared"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm install --workspaces",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend", 
+    "dev:worker": "npm run worker --workspace=backend",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "test:contract": "npm run test:contract --workspace=backend",
+    "test:integration": "npm run test:integration --workspace=backend", 
+    "test:e2e": "npm run test:e2e --workspace=frontend",
+    "lint": "npm run lint --workspaces",
+    "lint:fix": "npm run lint:fix --workspaces",
+    "format": "npm run format --workspaces",
+    "clean": "rm -rf node_modules backend/node_modules frontend/node_modules shared/node_modules backend/dist frontend/.next coverage",
+    "prisma:migrate": "npm run prisma:migrate --workspace=backend",
+    "prisma:generate": "npm run prisma:generate --workspace=backend",
+    "prisma:studio": "npm run prisma:studio --workspace=backend",
+    "prisma:seed": "npm run prisma:seed --workspace=backend",
+    "prisma:reset": "npm run prisma:reset --workspace=backend"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

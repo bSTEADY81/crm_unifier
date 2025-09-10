@@ -1,0 +1,16 @@
+{
+  "name": "@crm/shared",
+  "version": "0.1.0",
+  "description": "Shared types and utilities for CRM Unifier",
+  "main": "types/index.ts",
+  "type": "module",
+  "files": [
+    "types/**/*"
+  ],
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+coverage/
+
+# Generated files
+backend/prisma/client/
+backend/prisma/migrations/
+*.d.ts
+
+# Config files that don't need formatting
+*.config.js
+*.config.mjs
+next.config.mjs
+postcss.config.mjs
+tailwind.config.ts
+vitest.config.ts
+playwright.config.ts
+
+# Test results
+test-results/
+playwright-report/
+
+# Docker and infrastructure
+docker/
+scripts/
+
+# Environment files
+.env*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite
+
+# Cache
+.eslintcache
+.cache/
+.turbo/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Documentation that may have specific formatting
+CHANGELOG.md
+LICENSE
