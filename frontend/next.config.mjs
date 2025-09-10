@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -9,6 +10,7 @@ const nextConfig = {
   experimental: {
     typedRoutes: true,
   },
+  generateStaticParams: false,
   images: {
     remotePatterns: [
       {
