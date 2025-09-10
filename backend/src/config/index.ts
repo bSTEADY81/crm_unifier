@@ -1,8 +1,23 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-// Load environment variables
-dotenv.config();
+// Load environment variables - Railway provides them directly, .env for local development
+try {
+  dotenv.config();
+} catch (error) {
+  // Railway doesn't need .env file, variables are provided directly
+  console.log('No .env file found, using environment variables from Railway');
+}
+
+// Debug: Log which critical env vars are available (without values for security)
+console.log('Environment check:', {
+  hasDatabase: !!process.env.DATABASE_URL,
+  hasRedis: !!process.env.REDIS_URL,
+  hasJwtSecret: !!process.env.JWT_SECRET,
+  hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET,
+  nodeEnv: process.env.NODE_ENV,
+  port: process.env.PORT
+});
 
 const configSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
