@@ -29,6 +29,14 @@ NEXT_PUBLIC_API_URL=https://api.yourdomain.com/api/v1
 NEXTAUTH_SECRET=JAjEBx5Su3jGAiQgJnLAwW+ndr8v61nqQ81zDthckHg=
 ```
 
+**Current Deployment URL**: `https://crm-unifier-2.vercel.app`
+
+**For now, you can use this placeholder until backend is deployed:**
+```bash
+NEXT_PUBLIC_API_URL=https://crm-unifier-2.vercel.app/api/v1
+NEXTAUTH_SECRET=JAjEBx5Su3jGAiQgJnLAwW+ndr8v61nqQ81zDthckHg=
+```
+
 **IMPORTANT**: Replace `yourdomain.com` with your actual domain!
 
 ### 3. Configure Custom Domain (Optional)

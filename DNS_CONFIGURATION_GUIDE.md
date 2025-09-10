@@ -26,9 +26,15 @@ TTL: 300 seconds (5 minutes)
 
 ### Example Configuration
 
+**Current Status:**
+- ✅ **Frontend**: `https://crm-unifier-2.vercel.app` (deployed)
+- 🔄 **Backend**: `https://api.yourdomain.com` (to be deployed)
+
 If your domain is `example.com`:
 - `api.example.com` → Points to your Hostinger server IP
 - `app.example.com` → Points to Vercel via CNAME
+
+**Note**: You can use the Vercel URL (`crm-unifier-2.vercel.app`) for testing without a custom domain.
 
 ### DNS Providers
 

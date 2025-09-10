@@ -81,11 +81,15 @@ NEXTAUTH_SECRET=JAjEBx5Su3jGAiQgJnLAwW+ndr8v61nqQ81zDthckHg=
 PII_ENCRYPTION_KEY=8+xBgPKUTwR/MZmefW214Xud0gkHn+JAFB6Wh8YHFi8=
 ```
 
-## 🌐 Expected URLs
+## 🌐 Current URLs
 
-After deployment completion:
+**Frontend Deployment**:
+- ✅ **Frontend**: `https://crm-unifier-2.vercel.app`
+- 🔄 **Backend API**: `https://api.yourdomain.com/api/v1` (to be deployed)
+- 🔄 **Health Check**: `https://api.yourdomain.com/health` (to be deployed)
 
-- **Frontend**: `https://app.yourdomain.com`
+After full deployment completion:
+- **Frontend**: `https://crm-unifier-2.vercel.app` (or custom domain)
 - **Backend API**: `https://api.yourdomain.com/api/v1`
 - **Health Check**: `https://api.yourdomain.com/health`
 
