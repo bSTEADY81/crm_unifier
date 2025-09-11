@@ -1,160 +1,217 @@
-# CRM Unifier Development Guidelines
+# CLAUDE.md
 
-Auto-generated from feature plans. Last updated: 2025-09-09
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Active Technologies
-- **Backend**: TypeScript 5.x, Node.js 20+, Next.js 14+ API Routes
-- **Frontend**: React 18+, Next.js App Router, Tailwind CSS
-- **Database**: PostgreSQL 15+ with Prisma ORM
-- **Queue**: Bull with Redis backend
-- **Testing**: Vitest, Playwright, Supertest
-- **Real-time**: Server-Sent Events (SSE)
+## Project Overview
 
-## Project Structure
-```
-backend/
-├── src/
-│   ├── models/        # Prisma models
-│   ├── services/      # Business logic
-│   ├── api/          # API routes
-│   └── lib/          # Shared libraries
-└── tests/
-    ├── contract/     # API contract tests
-    ├── integration/  # Service integration tests
-    └── unit/        # Unit tests
-
-frontend/
-├── src/
-│   ├── app/         # Next.js app directory
-│   ├── components/  # React components  
-│   ├── hooks/       # Custom React hooks
-│   └── lib/        # Client utilities
-└── tests/
-    └── e2e/        # Playwright tests
-
-shared/
-└── types/          # Shared TypeScript types
-```
-
-## Key Libraries
-- **@crm/ingestion**: Message normalization and storage
-- **@crm/identity**: Customer identity resolution  
-- **@crm/webhooks**: Provider webhook handling
-- **@crm/audit**: Compliance and audit logging
+CRM Unifier is a unified customer correspondence platform that consolidates communication channels (SMS, email, voice, social media) into a single timeline view. The system consists of a TypeScript backend API and a Next.js frontend, with PostgreSQL and Redis for data storage and queueing.
 
 ## Development Commands
+
+### Environment Setup
 ```bash
-# Setup
-npm install
-docker-compose up -d
-npx prisma migrate dev
-
-# Development
-npm run dev:backend   # API on :3001
-npm run dev:frontend  # UI on :3000
-npm run dev:worker   # Queue processor
-
-# Testing
-npm run test:unit
-npm run test:integration
-npm run test:e2e
-npm run test:contracts
-
-# Database
-npx prisma studio    # GUI on :5555
-npx prisma migrate dev
-npx prisma db seed
-
-# CLI Tools
-npm run cli -- user:create
-npm run cli -- provider:test
-npm run cli -- health:check
+make setup              # Full environment setup
+make quick-setup        # Quick setup with env copy
+make start              # Start core services (postgres, redis)
+make start-all          # Start all services including dev tools
 ```
 
-## Code Style
-- **TypeScript**: Strict mode enabled, no any types
-- **React**: Functional components with hooks
-- **API**: RESTful with OpenAPI spec
-- **Database**: Migrations via Prisma
-- **Testing**: TDD - tests before implementation
-- **Commits**: Conventional commits format
+### Development Servers
+```bash
+make dev-backend        # Backend API on :3001
+make dev-frontend       # Frontend on :3000  
+make dev-worker         # Queue worker process
+```
 
-## Testing Requirements
-1. **Order**: Contract → Integration → E2E → Unit
-2. **Coverage**: 80% minimum for critical paths
-3. **Real Dependencies**: Use Docker containers, not mocks
-4. **RED-GREEN-Refactor**: Tests must fail first
+### Database Operations  
+```bash
+make db-setup           # Initialize with migrations and seed
+make db-studio          # Open Prisma Studio on :5555
+make db-reset           # Reset database (destructive)
 
-## Security Practices
-- Environment variables for secrets
-- Webhook signature verification
-- CSRF protection via NextAuth
-- Input validation with Zod
-- Column-level encryption for PII
+# Direct Prisma commands (from backend/)
+npm run prisma:migrate  # Run migrations
+npm run prisma:generate # Generate client
+npm run prisma:seed     # Seed database
+npm run prisma:studio   # Open Studio
+```
+
+### Testing
+```bash
+make test               # Run all tests
+make test-e2e           # Run Playwright E2E tests
+make test-setup         # Setup test environment
+
+# Backend testing (from backend/)
+npm run test:watch      # TDD mode
+npm run test:unit       # Unit tests
+npm run test:integration # Integration tests
+npm run test:contract   # API contract tests
+npm run test:performance # Performance tests
+
+# Frontend testing (from frontend/)
+npm run test:e2e        # Playwright tests
+npm run test:e2e:headed # Headed mode
+npm run test:e2e:debug  # Debug mode
+```
+
+### Utilities
+```bash
+make health             # Check service status
+make health-full        # Full health check with URLs
+make logs               # View all logs
+make clean              # Clean containers and artifacts
+```
+
+## Architecture Overview
+
+### Monorepo Structure
+- **`backend/`**: TypeScript Express API with Prisma ORM
+- **`frontend/`**: Next.js 14 with App Router and React 18
+- **`shared/`**: Shared TypeScript types across services
+- **`specs/`**: Feature specifications and documentation
+
+### Backend Architecture
+- **Express App**: Security-hardened with Helmet, CORS, rate limiting
+- **Database Layer**: Prisma ORM with PostgreSQL
+- **Queue System**: BullMQ with Redis backend
+- **Core Libraries**: Modular `@crm/*` packages for specific domains
+  - `@crm/ingestion`: Message normalization and storage
+  - `@crm/identity`: Customer identity resolution
+  - `@crm/webhooks`: Provider webhook processing
+  - `@crm/audit`: Compliance and audit logging
+
+### Frontend Architecture
+- **Next.js App Router**: File-based routing in `src/app/`
+- **Authentication**: NextAuth with JWT tokens
+- **Client State**: React Context for auth, React Query for server state
+- **UI Components**: Radix UI primitives with Tailwind CSS
+- **Type Safety**: Strict TypeScript with Zod validation
+
+### Key Design Patterns
+
+#### Client/Server Separation in Next.js
+The frontend uses a client wrapper pattern to prevent server-side rendering issues:
+- `src/app/Providers.tsx`: Client-side context wrapper with `'use client'`
+- `src/app/layout.tsx`: Server component that imports the client wrapper
+- Error pages (`error.tsx`, `not-found.tsx`) are properly marked as client/server components
+
+#### Security-First Backend
+- Multiple layers of security middleware (helmet, CORS, rate limiting)
+- Input validation with Zod schemas  
+- SQL injection prevention
+- Request size limits and timeouts
+- Comprehensive security logging
+
+#### Test-Driven Development
+- Contract tests validate API endpoints
+- Integration tests use real Docker containers
+- E2E tests cover full user workflows
+- TDD workflow: tests written before implementation
+
+### Database Schema Patterns
+- UUID primary keys for all entities
+- Standardized timestamps (`created_at`, `updated_at`)
+- Soft deletes with `deleted_at`
+- JSONB columns for flexible metadata
+- Enums for constrained values (message types, statuses, etc.)
+
+### Provider Integration
+The system integrates with multiple communication providers through a unified webhook system:
+- Twilio (SMS/Voice): `/api/v1/webhooks/twilio`
+- Gmail: `/api/v1/webhooks/gmail` 
+- WhatsApp: `/api/v1/webhooks/whatsapp`
+- Social platforms: Facebook, Instagram webhooks
+
+Each provider requires signature verification and has specific payload formats handled by the ingestion library.
+
+## Development Workflow
+
+### TDD Methodology
+1. Write failing tests first (contract → integration → unit)
+2. Implement minimal code to pass tests
+3. Refactor while keeping tests green
+4. Maintain 80%+ coverage on critical paths
+
+### Service Development
+```bash
+# Start dependencies
+make start
+
+# TDD backend development  
+cd backend && npm run test:watch
+
+# Start frontend in parallel
+make dev-frontend
+```
+
+### Environment Configuration
+- Copy `.env.example` to `.env.local` for local development
+- Docker Compose provides consistent PostgreSQL and Redis instances  
+- All services configured to work together out of the box
+
+## Key Libraries and Tools
+
+### Backend Stack
+- **Express**: Web framework with security middleware
+- **Prisma**: Type-safe database ORM
+- **BullMQ**: Redis-based job queuing
+- **Vitest**: Fast unit testing framework
+- **Zod**: Runtime type validation
+- **Pino**: Structured logging
+
+### Frontend Stack  
+- **Next.js 14**: React framework with App Router
+- **Tailwind CSS**: Utility-first CSS framework
+- **Radix UI**: Accessible component primitives
+- **React Query**: Server state management
+- **React Hook Form**: Form handling with validation
+- **Playwright**: End-to-end testing
+
+### Development Services
+| Service | Port | Purpose |
+|---------|------|---------|
+| Frontend | 3000 | Next.js web app |
+| Backend API | 3001 | Express server |
+| PostgreSQL | 5432 | Primary database |
+| Redis | 6379 | Cache and queues |
+| Prisma Studio | 5555 | Database GUI |
+| pgAdmin | 5050 | PostgreSQL admin (optional) |
+| Mailpit | 8025 | Email testing (optional) |
+
+## Common Patterns
+
+### Authentication Flow
+- NextAuth handles OAuth and JWT tokens
+- Backend validates JWTs on protected routes
+- Frontend uses auth context for user state
+- Protected pages check authentication in layouts
+
+### Message Processing Pipeline
+1. **Webhook Receipt**: Provider sends webhook to `/api/v1/webhooks/{provider}`
+2. **Signature Validation**: Verify webhook authenticity  
+3. **Ingestion**: Normalize message format via `@crm/ingestion`
+4. **Identity Resolution**: Link message to customer via `@crm/identity`
+5. **Storage**: Persist to database with audit trail
+6. **Real-time Updates**: Notify frontend via SSE/WebSocket
+
+### Error Handling
+- Structured error responses with consistent schema
+- Client-side error boundaries for React components
+- Server-side error middleware with security logging
+- Graceful fallbacks for external service failures
+
+## Security Considerations
+
+### Data Protection
+- Column-level encryption for PII (planned)
 - Audit logging for all data access
+- GDPR-compliant data retention policies
+- Secure webhook signature verification
 
-## Performance Goals
-- Webhook processing: <200ms
-- Page load: <1s
-- API response: <100ms p95
-- Message deduplication via unique constraints
-- Database indexes on search/filter fields
-
-## Provider Integration
-### Webhook Endpoints
-- POST `/api/v1/webhooks/twilio`
-- POST `/api/v1/webhooks/gmail`
-- POST `/api/v1/webhooks/whatsapp`
-- POST `/api/v1/webhooks/facebook`
-- POST `/api/v1/webhooks/instagram`
-
-### Signature Verification
-- Twilio: X-Twilio-Signature
-- Meta: X-Hub-Signature-256
-- Gmail: OAuth2 bearer token
-
-## Database Conventions
-- UUID primary keys
-- Timestamps: created_at, updated_at
-- Soft deletes with deleted_at
-- JSONB for flexible metadata
-- Enums for fixed options
-
-## API Conventions
-- Version prefix: /api/v1
-- Pagination: page, limit params
-- Filtering: query params
-- Errors: Consistent error schema
-- Auth: Bearer token (JWT)
-
-## Recent Changes
-- **001-build-a-web**: Initial CRM platform setup with multi-channel ingestion, identity resolution, and audit logging
-
-## Quick Fixes
-```bash
-# Reset database
-docker-compose down -v && docker-compose up -d
-npx prisma migrate reset --force
-
-# Clear Redis cache  
-docker exec crm-redis redis-cli FLUSHALL
-
-# Rebuild dependencies
-rm -rf node_modules package-lock.json
-npm install
-```
-
-<!-- MANUAL ADDITIONS START -->
-<!-- Add project-specific notes here -->
-<!-- MANUAL ADDITIONS END -->
-
-## Constitutional Principles
-1. **Library-First**: Every feature as standalone library
-2. **CLI Interface**: Each library exposes CLI
-3. **Test-First**: TDD mandatory, tests before code
-4. **Real Dependencies**: No mocks in integration tests
-5. **Observability**: Structured logging throughout
-6. **Simplicity**: Avoid unnecessary abstractions
-
----
-*Reference: /specs/001-build-a-web/plan.md for full details*
+### Application Security
+- CSRF protection via NextAuth
+- XSS prevention with content security policies
+- SQL injection prevention through Prisma
+- Rate limiting on API endpoints
+- Input sanitization and validation

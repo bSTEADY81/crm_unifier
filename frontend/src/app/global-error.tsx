@@ -1,6 +1,5 @@
 'use client'
 
-import { RefreshCw, Home, AlertTriangle } from 'lucide-react'
 import { useEffect } from 'react'
 
 export const dynamic = 'force-dynamic'
@@ -12,39 +11,91 @@ interface GlobalErrorProps {
 
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error('Global application error:', error)
   }, [error])
 
   return (
     <html>
       <body>
-        <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-100 flex items-center justify-center p-4">
-          <div className="max-w-md w-full text-center">
-            <div className="mb-8">
-              <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <AlertTriangle className="w-8 h-8 text-red-600" />
+        <div style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #fef2f2 0%, #fce7f3 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px',
+          fontFamily: 'system-ui, -apple-system, sans-serif'
+        }}>
+          <div style={{
+            maxWidth: '448px',
+            width: '100%',
+            textAlign: 'center'
+          }}>
+            <div style={{ marginBottom: '32px' }}>
+              <div style={{
+                margin: '0 auto 16px',
+                width: '64px',
+                height: '64px',
+                backgroundColor: '#fecaca',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <span style={{ color: '#dc2626', fontSize: '24px' }}>⚠️</span>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Application Error</h1>
-              <p className="text-gray-600 mb-8">
+              <h1 style={{ 
+                fontSize: '30px', 
+                fontWeight: 'bold', 
+                color: '#111827', 
+                marginBottom: '8px' 
+              }}>
+                Application Error
+              </h1>
+              <p style={{ 
+                color: '#6b7280', 
+                marginBottom: '32px' 
+              }}>
                 A critical error occurred in the application. Please refresh the page or try again later.
               </p>
             </div>
             
-            <div className="space-y-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <button 
                 onClick={reset}
-                className="inline-flex items-center justify-center gap-2 w-full bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
               >
-                <RefreshCw className="w-4 h-4" />
                 Try Again
               </button>
               
               <a
                 href="/"
-                className="inline-flex items-center justify-center gap-2 w-full bg-white text-red-600 px-6 py-3 rounded-lg font-medium border border-red-200 hover:bg-red-50 transition-colors"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  backgroundColor: 'white',
+                  color: '#dc2626',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  border: '1px solid #fecaca',
+                  textDecoration: 'none'
+                }}
               >
-                <Home className="w-4 h-4" />
                 Go Home
               </a>
             </div>

@@ -1,36 +1,84 @@
 'use client'
 
-import { Home, ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
-
 export const dynamic = 'force-dynamic'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full text-center">
-        <div className="mb-8">
-          <h1 className="text-8xl font-bold text-indigo-600 mb-4">404</h1>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Page Not Found</h2>
-          <p className="text-gray-600 mb-8">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '16px',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    }}>
+      <div style={{
+        maxWidth: '448px',
+        width: '100%',
+        textAlign: 'center'
+      }}>
+        <div style={{ marginBottom: '32px' }}>
+          <h1 style={{ 
+            fontSize: '120px', 
+            fontWeight: 'bold', 
+            color: '#4f46e5', 
+            marginBottom: '16px',
+            lineHeight: '1'
+          }}>
+            404
+          </h1>
+          <h2 style={{ 
+            fontSize: '24px', 
+            fontWeight: '600', 
+            color: '#111827', 
+            marginBottom: '8px' 
+          }}>
+            Page Not Found
+          </h2>
+          <p style={{ 
+            color: '#6b7280', 
+            marginBottom: '32px' 
+          }}>
             The page you&rsquo;re looking for doesn&rsquo;t exist or has been moved.
           </p>
         </div>
         
-        <div className="space-y-4">
-          <Link 
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <a 
             href="/"
-            className="inline-flex items-center justify-center gap-2 w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              backgroundColor: '#4f46e5',
+              color: 'white',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: '500',
+              textDecoration: 'none'
+            }}
           >
-            <Home className="w-4 h-4" />
             Go Home
-          </Link>
+          </a>
           
           <button 
             onClick={() => window.history.back()}
-            className="inline-flex items-center justify-center gap-2 w-full bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium border border-indigo-200 hover:bg-indigo-50 transition-colors"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              backgroundColor: 'white',
+              color: '#4f46e5',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontWeight: '500',
+              border: '1px solid #c7d2fe',
+              cursor: 'pointer'
+            }}
           >
-            <ArrowLeft className="w-4 h-4" />
             Go Back
           </button>
         </div>

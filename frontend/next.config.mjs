@@ -3,15 +3,19 @@ const nextConfig = {
   output: 'standalone',
   trailingSlash: false,
   typescript: {
-    ignoreBuildErrors: false, // Enable TypeScript checking for security
+    ignoreBuildErrors: false,
   },
   eslint: {
-    ignoreDuringBuilds: false, // Enable ESLint checking for security
-    dirs: ['src'], // Only check src directory
+    ignoreDuringBuilds: false,
+    dirs: ['src'],
   },
   experimental: {
     typedRoutes: true,
   },
+  compiler: {
+    styledComponents: false,
+  },
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       {
