@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  distDir: '.next',
   trailingSlash: false,
   typescript: {
     ignoreBuildErrors: false,
@@ -15,6 +16,10 @@ const nextConfig = {
   compiler: {
     styledComponents: false,
   },
+  async generateBuildId() {
+    return 'crm-unifier-build'
+  },
+  generateEtags: false,
   poweredByHeader: false,
   images: {
     remotePatterns: [

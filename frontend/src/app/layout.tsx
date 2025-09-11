@@ -5,10 +5,6 @@ import Providers from './Providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const dynamic = 'force-dynamic'
-export const dynamicParams = true
-export const revalidate = 0
-
 export const metadata: Metadata = {
   title: 'CRM Unifier',
   description: 'Unified customer correspondence platform',

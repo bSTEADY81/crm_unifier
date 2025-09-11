@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:prod": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
@@ -37,7 +38,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.378.0",
     "next": "14.2.3",
-    "next-auth": "^4.24.7",
+    "next-auth": "4.24.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.51.4",
@@ -68,5 +69,9 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "overrides": {
+    "next": "14.2.3",
+    "styled-jsx": "5.1.1"
   }
 }
