@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  trailingSlash: false,
   typescript: {
     ignoreBuildErrors: false, // Enable TypeScript checking for security
   },
