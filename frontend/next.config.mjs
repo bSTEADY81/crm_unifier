@@ -11,7 +11,6 @@ const nextConfig = {
   experimental: {
     typedRoutes: true,
   },
-  generateStaticParams: false,
   images: {
     remotePatterns: [
       {
