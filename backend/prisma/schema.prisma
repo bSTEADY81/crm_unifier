@@ -183,18 +183,87 @@ model User {
   name      String    @db.VarChar(255)
   role      UserRole
   metadata  Json      @default("{}")
+  isActive  Boolean   @default(true) @map("is_active")
   lastLogin DateTime? @map("last_login") @db.Timestamptz
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
+  password            UserPassword?
   auditEvents         AuditEvent[]
   assignedBy          ConversationAssignment[] @relation("AssignedBy")
   conversationAssignments ConversationAssignment[] @relation("AssignedTo")
+  sessions            UserSession[]
+  loginAttempts       LoginAttempt[]
 
   @@map("users")
   @@index([email])
   @@index([role])
+  @@index([isActive])
+}
+
+model UserPassword {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @unique @map("user_id") @db.Uuid
+  passwordHash    String    @map("password_hash") @db.VarChar(255)
+  salt            String    @db.VarChar(255)
+  algorithm       String    @default("bcrypt") @db.VarChar(50)
+  iterations      Int       @default(12)
+  resetToken      String?   @map("reset_token") @db.VarChar(255)
+  resetTokenExpiry DateTime? @map("reset_token_expiry") @db.Timestamptz
+  lastChanged     DateTime  @default(now()) @map("last_changed") @db.Timestamptz
+  passwordHistory Json      @default("[]") @map("password_history") // Store hashes of last 5 passwords
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_passwords")
+  @@index([resetToken])
+  @@index([userId])
+}
+
+model UserSession {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  token     String    @unique @db.VarChar(255)
+  type      String    @default("access") @db.VarChar(50) // access, refresh
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz
+  isActive  Boolean   @default(true) @map("is_active")
+  ipAddress String?   @map("ip_address") @db.Inet
+  userAgent String?   @map("user_agent") @db.Text
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  lastUsed  DateTime  @default(now()) @map("last_used") @db.Timestamptz
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@index([isActive])
+}
+
+model LoginAttempt {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String?   @map("user_id") @db.Uuid
+  email       String    @db.VarChar(255)
+  ipAddress   String    @map("ip_address") @db.Inet
+  userAgent   String?   @map("user_agent") @db.Text
+  success     Boolean
+  failureReason String? @map("failure_reason") @db.VarChar(255)
+  attemptedAt DateTime  @default(now()) @map("attempted_at") @db.Timestamptz
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("login_attempts")
+  @@index([email])
+  @@index([ipAddress])
+  @@index([attemptedAt])
+  @@index([success])
 }
 
 model Provider {
