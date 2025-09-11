@@ -33,23 +33,23 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     const newErrors: Record<string, string> = {}
     
     if (!formData.email) {
-      newErrors.email = 'Email is required'
+      newErrors['email'] = 'Email is required'
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Invalid email address'
+      newErrors['email'] = 'Invalid email address'
     }
     
     if (!formData.password) {
-      newErrors.password = 'Password is required'
+      newErrors['password'] = 'Password is required'
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters'
+      newErrors['password'] = 'Password must be at least 8 characters'
     }
     
     if (isSignUp) {
       if (!formData.name) {
-        newErrors.name = 'Name is required'
+        newErrors['name'] = 'Name is required'
       }
       if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Passwords do not match'
+        newErrors['confirmPassword'] = 'Passwords do not match'
       }
     }
     
@@ -137,13 +137,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={formData.name}
                   onChange={handleInputChange}
                   className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.name ? 'border-red-500' : 'border-gray-300'
+                    errors['name'] ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="John Doe"
                 />
               </div>
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+              {errors['name'] && (
+                <p className="mt-1 text-sm text-red-600">{errors['name']}</p>
               )}
             </div>
           )}
@@ -160,13 +160,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 value={formData.email}
                 onChange={handleInputChange}
                 className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
+                  errors['email'] ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="you@example.com"
               />
             </div>
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+            {errors['email'] && (
+              <p className="mt-1 text-sm text-red-600">{errors['email']}</p>
             )}
           </div>
 
@@ -182,7 +182,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 value={formData.password}
                 onChange={handleInputChange}
                 className={`w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
+                  errors['password'] ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="••••••••"
               />
@@ -194,8 +194,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+            {errors['password'] && (
+              <p className="mt-1 text-sm text-red-600">{errors['password']}</p>
             )}
           </div>
 
@@ -212,13 +212,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                    errors['confirmPassword'] ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="••••••••"
                 />
               </div>
-              {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+              {errors['confirmPassword'] && (
+                <p className="mt-1 text-sm text-red-600">{errors['confirmPassword']}</p>
               )}
             </div>
           )}
@@ -235,9 +235,9 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </div>
           )}
 
-          {errors.submit && (
+          {errors['submit'] && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{errors.submit}</p>
+              <p className="text-sm text-red-600">{errors['submit']}</p>
             </div>
           )}
 

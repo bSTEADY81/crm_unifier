@@ -34,8 +34,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const storedUser = localStorage.getItem('auth_user')
 
         if (storedToken && storedUser) {
-          const parsedUser = JSON.parse(storedUser)
-          
           // Set token in API client
           apiClient.setAuthToken(storedToken)
           

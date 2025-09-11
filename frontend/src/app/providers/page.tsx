@@ -13,8 +13,6 @@ import {
   CheckCircle,
   Clock,
   Zap,
-  Globe,
-  Key,
   Webhook,
   Activity,
   Home,

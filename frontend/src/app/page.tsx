@@ -1,29 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Users, MessageSquare, Settings, Menu, X, LogIn, Home, ArrowRight, Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import { Users, MessageSquare, Settings, Menu, X, LogIn, Home, ArrowRight } from 'lucide-react'
 import AuthModal from '@/components/AuthModal'
 import Link from 'next/link'
 
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [activeSection, setActiveSection] = useState('home')
-  const [isLoading, setIsLoading] = useState(false)
-  const [notification, setNotification] = useState('')
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
 
-  // Handle navigation with loading state
-  const handleSectionClick = (section: string) => {
-    setIsLoading(true)
-    setActiveSection(section)
-    setNotification(`Loading ${section}...`)
-    
-    setTimeout(() => {
-      setIsLoading(false)
-      setNotification(`${section.charAt(0).toUpperCase() + section.slice(1)} section loaded`)
-      setTimeout(() => setNotification(''), 3000)
-    }, 1000)
-  }
 
   const sections = [
     {
@@ -78,9 +63,7 @@ export default function HomePage() {
             <div className="hidden md:flex items-center space-x-6">
               <Link 
                 href="/"
-                className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeSection === 'home' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:text-blue-600'
-                }`}
+                className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors bg-blue-100 text-blue-700"
               >
                 <Home size={16} />
                 <span>Home</span>
@@ -173,12 +156,6 @@ export default function HomePage() {
         )}
       </nav>
 
-      {/* Notification Bar */}
-      {notification && (
-        <div className="bg-blue-500 text-white px-4 py-2 text-center text-sm animate-pulse">
-          {notification}
-        </div>
-      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

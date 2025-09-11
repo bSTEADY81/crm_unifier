@@ -6,7 +6,6 @@ import {
   MessageSquare, 
   Settings, 
   Search,
-  Filter,
   Send,
   Paperclip,
   Phone,
@@ -14,14 +13,12 @@ import {
   MoreVertical,
   Star,
   Archive,
-  Trash2,
   Reply,
   Forward,
   Home,
   Menu,
   X,
   BarChart3,
-  Clock,
   Check,
   CheckCheck
 } from 'lucide-react'

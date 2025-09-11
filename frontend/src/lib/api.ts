@@ -5,7 +5,7 @@ class ApiClient {
   private authToken: string | null = null
 
   constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
+    this.baseUrl = process.env['NEXT_PUBLIC_API_URL'] || 'http://localhost:3001/api/v1'
   }
 
   setAuthToken(token: string) {
@@ -22,9 +22,9 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`
     
-    const headers = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string> || {}),
     }
 
     if (this.authToken) {
@@ -76,7 +76,7 @@ class ApiClient {
   }
 
   async logout(): Promise<ApiResponse<null>> {
-    const result = await this.request('/auth/logout', {
+    const result = await this.request<null>('/auth/logout', {
       method: 'POST',
     })
     this.clearAuthToken()

@@ -38,7 +38,7 @@
       "@/components/*": ["./src/components/*"],
       "@/hooks/*": ["./src/hooks/*"],
       "@/lib/*": ["./src/lib/*"],
-      "@/types/*": ["../shared/types/*"]
+      "@/types/*": ["./src/types/*"]
     },
     "types": ["vitest/globals", "@playwright/test"]
   },
@@ -47,7 +47,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "../shared/types/**/*"
+    "./src/types/**/*"
   ],
   "exclude": [
     "node_modules",
