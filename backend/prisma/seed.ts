@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import { SecureUserModel } from '../src/models/user-secure.js';
 
 const prisma = new PrismaClient();
 
@@ -7,58 +7,40 @@ async function main() {
   console.log('🌱 Starting database seed...');
 
   // Create default admin user
-  const adminPasswordHash = await bcrypt.hash('AdminPass123!', 12);
-  
-  const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
-    update: {},
-    create: {
-      email: 'admin@example.com',
-      name: 'System Administrator',
-      role: 'admin',
-      metadata: {
-        isDefaultAdmin: true,
-        createdBy: 'seed',
-        passwordHash: adminPasswordHash
-      }
+  const adminUser = await SecureUserModel.create({
+    email: 'admin@example.com',
+    name: 'System Administrator',
+    role: 'admin',
+    password: 'AdminPass123!',
+    metadata: {
+      isDefaultAdmin: true,
+      createdBy: 'seed'
     }
   });
   console.log('👤 Created admin user:', adminUser.email);
 
   // Create sample staff user
-  const staffPasswordHash = await bcrypt.hash('StaffPass123!', 12);
-  
-  const staffUser = await prisma.user.upsert({
-    where: { email: 'staff@example.com' },
-    update: {},
-    create: {
-      email: 'staff@example.com',
-      name: 'John Staff',
-      role: 'staff',
-      metadata: {
-        department: 'customer_service',
-        createdBy: 'seed',
-        passwordHash: staffPasswordHash
-      }
+  const staffUser = await SecureUserModel.create({
+    email: 'staff@example.com',
+    name: 'John Staff',
+    role: 'staff',
+    password: 'StaffPass123!',
+    metadata: {
+      department: 'customer_service',
+      createdBy: 'seed'
     }
   });
   console.log('👤 Created staff user:', staffUser.email);
 
   // Create sample viewer user
-  const viewerPasswordHash = await bcrypt.hash('ViewerPass123!', 12);
-  
-  const viewerUser = await prisma.user.upsert({
-    where: { email: 'viewer@example.com' },
-    update: {},
-    create: {
-      email: 'viewer@example.com',
-      name: 'Jane Viewer',
-      role: 'viewer',
-      metadata: {
-        department: 'management',
-        createdBy: 'seed',
-        passwordHash: viewerPasswordHash
-      }
+  const viewerUser = await SecureUserModel.create({
+    email: 'viewer@example.com',
+    name: 'Jane Viewer',
+    role: 'viewer',
+    password: 'ViewerPass123!',
+    metadata: {
+      department: 'management',
+      createdBy: 'seed'
     }
   });
   console.log('👤 Created viewer user:', viewerUser.email);
