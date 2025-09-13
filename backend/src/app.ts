@@ -136,7 +136,8 @@ app.use('/api/v1/providers', providerRoutes);
 app.get('/api/v1', (req, res) => {
   res.json({ 
     message: 'CRM Unifier API v1',
-    docs: '/api/v1/docs'
+    docs: '/api/v1/docs',
+    version: '1.1.0'
   });
 });
 
