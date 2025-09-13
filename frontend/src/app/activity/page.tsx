@@ -8,7 +8,6 @@ import {
   Settings, 
   AlertCircle,
   Clock,
-  TrendingUp,
   Filter,
   Search,
   Calendar,

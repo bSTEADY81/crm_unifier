@@ -4,13 +4,13 @@ import { chromium, FullConfig } from '@playwright/test';
  * Global setup for production testing
  * Validates that production services are accessible before running tests
  */
-async function globalSetup(config: FullConfig) {
+async function globalSetup(_config: FullConfig) {
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
   // Get production URLs from environment or use defaults
-  const frontendUrl = process.env.PRODUCTION_FRONTEND_URL || 'https://crm-unifier-frontend.vercel.app';
-  const backendUrl = process.env.PRODUCTION_BACKEND_URL || 'https://crm-unifier-backend.up.railway.app';
+  const frontendUrl = process.env['PRODUCTION_FRONTEND_URL'] || 'https://crm-unifier-frontend.vercel.app';
+  const backendUrl = process.env['PRODUCTION_BACKEND_URL'] || 'https://crm-unifier-backend.up.railway.app';
   
   console.log('🔍 Validating production services...');
   

@@ -30,7 +30,6 @@ export default function MessagesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [newMessage, setNewMessage] = useState('')
   const [isSending, setIsSending] = useState(false)
-  const [conversationMessages, setConversationMessages] = useState(messages)
 
   const conversations = [
     {
@@ -127,6 +126,8 @@ export default function MessagesPage() {
       channel: 'WhatsApp'
     }
   ]
+
+  const [conversationMessages, setConversationMessages] = useState(messages)
 
   const getChannelColor = (channel: string) => {
     switch (channel) {

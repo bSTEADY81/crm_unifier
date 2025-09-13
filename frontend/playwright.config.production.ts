@@ -14,7 +14,7 @@ export default defineConfig({
   
   use: {
     // Production frontend URL - update with your Vercel domain
-    baseURL: process.env.PRODUCTION_FRONTEND_URL || 'https://crm-unifier-frontend.vercel.app',
+    baseURL: process.env['PRODUCTION_FRONTEND_URL'] || 'https://crm-unifier-frontend.vercel.app',
     
     // Extended timeout for production testing
     actionTimeout: 10000,
