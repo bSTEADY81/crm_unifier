@@ -7,7 +7,6 @@ import {
   Users, 
   Settings, 
   AlertCircle,
-  CheckCircle,
   Clock,
   TrendingUp,
   Filter,
