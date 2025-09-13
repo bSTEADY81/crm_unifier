@@ -71,7 +71,7 @@ export class SecureUserModel {
 
       // Create password if provided
       if (data.password) {
-        await this.setPassword(user.id, data.password);
+        await this.setPasswordInTransaction(tx, user.id, data.password);
       }
 
       return user;
@@ -119,6 +119,28 @@ export class SecureUserModel {
         passwordHistory
       },
       create: {
+        userId,
+        passwordHash,
+        salt,
+        algorithm: 'bcrypt',
+        iterations: this.BCRYPT_ROUNDS,
+        passwordHistory
+      }
+    });
+  }
+
+  static async setPasswordInTransaction(tx: any, userId: string, password: string): Promise<void> {
+    // Validate password strength
+    this.validatePasswordStrength(password);
+
+    const salt = randomBytes(32).toString('hex');
+    const passwordHash = await bcrypt.hash(password + salt, this.BCRYPT_ROUNDS);
+
+    // For new users in transaction, there's no existing password
+    const passwordHistory: string[] = [passwordHash];
+
+    await tx.userPassword.create({
+      data: {
         userId,
         passwordHash,
         salt,

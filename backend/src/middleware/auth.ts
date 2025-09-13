@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserModel } from '../models/user';
+import { SecureUserModel } from '../models/user-secure';
 
 declare global {
   namespace Express {
@@ -49,7 +49,7 @@ export const requireAuth = async (
     }
 
     try {
-      const user = await UserModel.validateToken(token);
+      const user = await SecureUserModel.validateAccessToken(token);
       
       // Attach user to request
       req.user = {
