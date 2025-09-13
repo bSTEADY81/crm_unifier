@@ -17,6 +17,8 @@
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
+    "test:e2e:production": "playwright test --config=playwright.config.production.ts",
+    "test:e2e:production:headed": "playwright test --config=playwright.config.production.ts --headed",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

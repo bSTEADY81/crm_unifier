@@ -29,6 +29,8 @@ import Link from 'next/link'
 export default function ProvidersPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showApiKey, setShowApiKey] = useState<Record<string, boolean>>({})
+  const [testingConnection, setTestingConnection] = useState<Record<number, boolean>>({})
+  const [connectionResults, setConnectionResults] = useState<Record<number, {status: 'success' | 'error', message: string} | null>>({})
 
   const providers = [
     {
@@ -149,6 +151,54 @@ export default function ProvidersPage() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     // You could add a toast notification here
+  }
+
+  const testConnection = async (provider: any) => {
+    setTestingConnection(prev => ({ ...prev, [provider.id]: true }))
+    setConnectionResults(prev => ({ ...prev, [provider.id]: null }))
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // Simulate different results based on provider status
+      const isSuccess = provider.status === 'active' || Math.random() > 0.3
+      
+      if (isSuccess) {
+        setConnectionResults(prev => ({
+          ...prev,
+          [provider.id]: {
+            status: 'success',
+            message: `Successfully connected to ${provider.name}. All systems operational.`
+          }
+        }))
+      } else {
+        setConnectionResults(prev => ({
+          ...prev,
+          [provider.id]: {
+            status: 'error',
+            message: `Failed to connect to ${provider.name}. Please check your configuration.`
+          }
+        }))
+      }
+      
+      // Here you would make actual API call:
+      // const response = await fetch(`/api/providers/${provider.id}/test`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' }
+      // })
+      
+    } catch (error) {
+      setConnectionResults(prev => ({
+        ...prev,
+        [provider.id]: {
+          status: 'error',
+          message: 'Connection test failed. Please try again.'
+        }
+      }))
+    } finally {
+      setTestingConnection(prev => ({ ...prev, [provider.id]: false }))
+    }
   }
 
   return (
@@ -444,10 +494,45 @@ export default function ProvidersPage() {
                       <Zap size={16} className="text-yellow-500" />
                       <span className="text-sm font-medium text-gray-900">Connection Status</span>
                     </div>
-                    <button className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-600 transition-colors">
-                      Test Connection
+                    <button 
+                      onClick={() => testConnection(provider)}
+                      disabled={testingConnection[provider.id]}
+                      className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+                    >
+                      {testingConnection[provider.id] ? (
+                        <>
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                          <span>Testing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Zap size={14} />
+                          <span>Test Connection</span>
+                        </>
+                      )}
                     </button>
                   </div>
+                  
+                  {/* Connection Test Results */}
+                  {connectionResults[provider.id] && (
+                    <div className={`mt-3 p-3 rounded-lg text-sm ${
+                      connectionResults[provider.id]?.status === 'success' 
+                        ? 'bg-green-50 text-green-800 border border-green-200' 
+                        : 'bg-red-50 text-red-800 border border-red-200'
+                    }`}>
+                      <div className="flex items-center space-x-2">
+                        {connectionResults[provider.id]?.status === 'success' ? (
+                          <CheckCircle size={16} className="text-green-600" />
+                        ) : (
+                          <AlertCircle size={16} className="text-red-600" />
+                        )}
+                        <span className="font-medium">
+                          {connectionResults[provider.id]?.status === 'success' ? 'Success' : 'Error'}
+                        </span>
+                      </div>
+                      <p className="mt-1">{connectionResults[provider.id]?.message}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -29,6 +29,8 @@ export default function MessagesPage() {
   const [selectedConversation, setSelectedConversation] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const [newMessage, setNewMessage] = useState('')
+  const [isSending, setIsSending] = useState(false)
+  const [conversationMessages, setConversationMessages] = useState(messages)
 
   const conversations = [
     {
@@ -149,6 +151,65 @@ export default function MessagesPage() {
   const filteredConversations = conversations.filter(conv =>
     conv.customer.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const handleSendMessage = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    
+    if (!newMessage.trim() || isSending) return
+    
+    setIsSending(true)
+    
+    try {
+      // Create new message object
+      const messageToSend = {
+        id: conversationMessages.length + 1,
+        sender: 'Support Agent',
+        content: newMessage.trim(),
+        timestamp: new Date().toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        }),
+        isCustomer: false,
+        channel: 'WhatsApp'
+      }
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Here you would make actual API call:
+      // const response = await fetch('/api/messages', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     conversationId: selectedConversation,
+      //     content: newMessage.trim(),
+      //     channel: 'WhatsApp'
+      //   })
+      // })
+      
+      // Add message to conversation
+      setConversationMessages(prev => [...prev, messageToSend])
+      
+      // Clear input
+      setNewMessage('')
+      
+      // Show success feedback (optional)
+      // You could add a toast notification here
+      
+    } catch (error) {
+      console.error('Error sending message:', error)
+      alert('Failed to send message. Please try again.')
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -366,7 +427,7 @@ export default function MessagesPage() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message) => (
+            {conversationMessages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.isCustomer ? 'justify-start' : 'justify-end'}`}
@@ -404,11 +465,21 @@ export default function MessagesPage() {
                   placeholder="Type a message..."
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onKeyPress={handleKeyPress}
+                  disabled={isSending}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                 />
               </div>
-              <button className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition-colors">
-                <Send size={18} />
+              <button 
+                onClick={handleSendMessage}
+                disabled={isSending || !newMessage.trim()}
+                className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center min-w-[40px]"
+              >
+                {isSending ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                ) : (
+                  <Send size={18} />
+                )}
               </button>
             </div>
             <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
