@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { SecureUserModel } from '../models/user-secure';
-import { validateSchema, validateJson, loginSchema } from '../middleware/validation';
+import { validateSchema, validateJson, loginSchema, registerSchema } from '../middleware/validation';
 import { passwordResetRateLimit } from '../middleware/security';
 
 const router = Router();
@@ -52,6 +52,83 @@ router.post('/login',
       res.status(500).json({
         error: 'internal_server_error',
         message: 'Login failed'
+      });
+    }
+  }
+);
+
+// User registration endpoint
+router.post('/register',
+  validateJson,
+  validateSchema(registerSchema),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { name, email, password } = req.body;
+
+      // Create new user with staff role by default
+      const user = await SecureUserModel.create({
+        name,
+        email,
+        role: 'staff', // New users get staff role by default
+        password,
+        metadata: {
+          registeredAt: new Date().toISOString(),
+          registrationMethod: 'direct'
+        }
+      });
+
+      // Generate tokens for immediate login
+      const ipAddress = req.ip;
+      const userAgent = req.get('User-Agent');
+      
+      const tokens = await SecureUserModel.generateTokenPair(user, ipAddress, userAgent);
+
+      // Set refresh token as httpOnly cookie
+      res.cookie('refreshToken', tokens.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      res.status(201).json({
+        accessToken: tokens.accessToken,
+        expiresIn: tokens.expiresIn,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          isActive: user.isActive,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
+        }
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      
+      if (error instanceof Error) {
+        // Handle specific errors
+        if (error.message.includes('already exists')) {
+          res.status(409).json({
+            error: 'conflict',
+            message: 'User with this email already exists'
+          });
+          return;
+        }
+        
+        if (error.message.includes('Password must')) {
+          res.status(400).json({
+            error: 'validation_error',
+            message: error.message
+          });
+          return;
+        }
+      }
+
+      res.status(500).json({
+        error: 'internal_server_error',
+        message: 'Registration failed'
       });
     }
   }

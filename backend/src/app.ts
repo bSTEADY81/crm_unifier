@@ -119,11 +119,13 @@ app.get('/health', (req, res) => {
 // Import routes
 import authRoutes from './routes/auth';
 import customerRoutes from './routes/customers';
+import userRoutes from './routes/users';
 import { handleValidationError } from './middleware/validation';
 
 // API routes with enhanced security
 app.use('/api/v1/auth', authRateLimit, authRoutes); // Strict rate limiting for auth
 app.use('/api/v1/customers', customerRoutes);
+app.use('/api/v1/users', userRoutes);
 
 app.get('/api/v1', (req, res) => {
   res.json({ 

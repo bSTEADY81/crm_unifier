@@ -117,6 +117,20 @@ export const loginSchema = z.object({
   params: z.any().optional()
 });
 
+export const registerSchema = z.object({
+  body: z.object({
+    name: z.string().min(1, 'Name is required').max(255, 'Name exceeds maximum length'),
+    email: z.string().email('Must be a valid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters')
+      .regex(/(?=.*[a-z])/, 'Password must contain at least one lowercase letter')
+      .regex(/(?=.*[A-Z])/, 'Password must contain at least one uppercase letter')
+      .regex(/(?=.*\d)/, 'Password must contain at least one number')
+      .regex(/(?=.*[@$!%*?&])/, 'Password must contain at least one special character')
+  }),
+  query: z.any().optional(),
+  params: z.any().optional()
+});
+
 export const customerCreateSchema = z.object({
   body: z.object({
     name: z.string().min(1, 'Name cannot be empty').max(255, 'Name exceeds maximum length of 255 characters'),
