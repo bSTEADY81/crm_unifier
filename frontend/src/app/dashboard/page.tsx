@@ -28,7 +28,8 @@ export default function DashboardPage() {
       change: '+12%',
       trend: 'up',
       icon: Users,
-      color: 'bg-blue-500'
+      color: 'bg-blue-500',
+      href: '/customers'
     },
     {
       title: 'Messages Today',
@@ -36,7 +37,8 @@ export default function DashboardPage() {
       change: '+8%',
       trend: 'up',
       icon: MessageSquare,
-      color: 'bg-green-500'
+      color: 'bg-green-500',
+      href: '/messages'
     },
     {
       title: 'Active Providers',
@@ -44,7 +46,8 @@ export default function DashboardPage() {
       change: '0%',
       trend: 'stable',
       icon: Settings,
-      color: 'bg-purple-500'
+      color: 'bg-purple-500',
+      href: '/providers'
     },
     {
       title: 'Response Time',
@@ -52,7 +55,8 @@ export default function DashboardPage() {
       change: '-15%',
       trend: 'down',
       icon: Clock,
-      color: 'bg-yellow-500'
+      color: 'bg-yellow-500',
+      href: null // No specific page for response time
     }
   ]
 
@@ -231,9 +235,15 @@ export default function DashboardPage() {
                     <p className="text-sm font-medium text-gray-600">{stat.title}</p>
                     <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
                   </div>
-                  <div className={`${stat.color} w-12 h-12 rounded-lg flex items-center justify-center`}>
-                    <Icon className="text-white" size={24} />
-                  </div>
+                  {stat.href ? (
+                    <Link href={stat.href} className={`${stat.color} w-12 h-12 rounded-lg flex items-center justify-center hover:opacity-80 transition-opacity cursor-pointer`}>
+                      <Icon className="text-white" size={24} />
+                    </Link>
+                  ) : (
+                    <div className={`${stat.color} w-12 h-12 rounded-lg flex items-center justify-center`}>
+                      <Icon className="text-white" size={24} />
+                    </div>
+                  )}
                 </div>
                 <div className="mt-4 flex items-center">
                   <TrendingUp 
