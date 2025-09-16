@@ -100,25 +100,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           }, 500)
         }, 100)
       } else {
-        console.log('AuthModal: Authentication failed - no success response', result.error)
+        console.log('AuthModal: Authentication failed - no success response')
         
         // Handle specific error messages from API
         let errorMessage = isSignUp ? 'Registration failed. Please check your details and try again.' : 'Invalid email or password. Please try again.'
-        
-        if (result.error) {
-          // Conflict errors (user already exists)
-          if (result.error.includes('already exists') || result.error.includes('conflict')) {
-            errorMessage = 'An account with this email already exists. Please sign in instead.'
-          }
-          // Validation errors
-          else if (result.error.includes('validation') || result.error.includes('Password must')) {
-            errorMessage = result.error
-          }
-          // Bad request errors
-          else if (result.error.includes('Invalid') || result.error.includes('required')) {
-            errorMessage = 'Please check your input and try again. Make sure all fields are filled correctly.'
-          }
-        }
         
         setErrors({
           submit: errorMessage
