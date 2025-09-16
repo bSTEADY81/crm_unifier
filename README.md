@@ -174,4 +174,4 @@ GMAIL_CLIENT_ID="xxxxx.apps.googleusercontent.com"
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
+MIT License - see LICENSE file for details# Trigger Vercel deployment
