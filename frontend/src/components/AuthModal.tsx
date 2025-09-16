@@ -73,7 +73,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       
       if (success) {
         console.log('AuthModal: Authentication successful')
-        onClose()
+        
         // Reset form
         setFormData({
           email: '',
@@ -81,6 +81,24 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           name: '',
           confirmPassword: ''
         })
+        
+        // Close modal first
+        onClose()
+        
+        // Force a small delay to ensure state propagation, then trigger re-render
+        setTimeout(() => {
+          // Force the page to re-render by triggering a window event
+          window.dispatchEvent(new Event('auth-state-changed'))
+          
+          // As a fallback, force page refresh if the event doesn't work
+          // This ensures the UI always updates after successful authentication
+          setTimeout(() => {
+            if (document.querySelector('[data-auth-button="sign-in"]')) {
+              console.log('AuthModal: UI not updated, forcing page refresh')
+              window.location.reload()
+            }
+          }, 500)
+        }, 100)
       } else {
         console.log('AuthModal: Authentication failed - no success response', result.error)
         

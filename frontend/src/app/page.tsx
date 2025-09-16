@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Users, MessageSquare, Settings, Menu, X, LogIn, Home, ArrowRight, LogOut, User } from 'lucide-react'
 import AuthModal from '@/components/AuthModal'
 import Link from 'next/link'
@@ -9,7 +9,33 @@ import { useAuth } from '@/contexts/AuthContext'
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-  const { user, logout, isAuthenticated } = useAuth()
+  const [isMounted, setIsMounted] = useState(false) // Track client-side mount
+  const { user, logout, isAuthenticated, isLoading } = useAuth()
+
+  // Handle hydration and ensure client-side rendering
+  useEffect(() => {
+    setIsMounted(true)
+    
+    // Listen for auth state changes from the modal
+    const handleAuthChange = () => {
+      console.log('HomePage: Received auth-state-changed event')
+      // Force re-render by updating a local state
+      setIsMounted(prev => !prev)
+      setTimeout(() => setIsMounted(true), 10)
+    }
+    
+    window.addEventListener('auth-state-changed', handleAuthChange)
+    return () => window.removeEventListener('auth-state-changed', handleAuthChange)
+  }, [])
+
+  // Debug logging
+  console.log('HomePage: Rendering with auth state:', {
+    isAuthenticated,
+    hasUser: !!user,
+    userName: user?.name,
+    isLoading,
+    isMounted
+  })
 
 
   const sections = [
@@ -90,7 +116,13 @@ export default function HomePage() {
                   </Link>
                 )
               })}
-              {isAuthenticated ? (
+              {!isMounted || isLoading ? (
+                // Loading state
+                <div className="flex items-center space-x-1 bg-gray-200 px-4 py-2 rounded-md animate-pulse">
+                  <div className="w-4 h-4 bg-gray-300 rounded"></div>
+                  <div className="w-16 h-4 bg-gray-300 rounded"></div>
+                </div>
+              ) : isAuthenticated ? (
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-700">Welcome, <span className="font-medium text-blue-600">{user?.name}</span></span>
                   <button 
@@ -104,6 +136,7 @@ export default function HomePage() {
               ) : (
                 <button 
                   onClick={() => setIsAuthModalOpen(true)}
+                  data-auth-button="sign-in"
                   className="flex items-center space-x-1 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
                 >
                   <LogIn size={16} />
@@ -156,7 +189,15 @@ export default function HomePage() {
                   </Link>
                 )
               })}
-              {isAuthenticated ? (
+              {!isMounted || isLoading ? (
+                // Loading state for mobile
+                <div className="w-full bg-gray-200 px-3 py-2 rounded-md animate-pulse">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-5 h-5 bg-gray-300 rounded"></div>
+                    <div className="w-20 h-4 bg-gray-300 rounded"></div>
+                  </div>
+                </div>
+              ) : isAuthenticated ? (
                 <>
                   <div className="w-full bg-blue-50 text-blue-700 px-3 py-2 rounded-md mb-2">
                     <span className="text-sm">Welcome, <span className="font-medium">{user?.name}</span></span>
@@ -178,6 +219,7 @@ export default function HomePage() {
                     setIsAuthModalOpen(true)
                     setIsMenuOpen(false)
                   }}
+                  data-auth-button="sign-in"
                   className="flex items-center space-x-2 w-full bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600"
                 >
                   <LogIn size={20} />
@@ -201,7 +243,13 @@ export default function HomePage() {
             Unified customer correspondence platform
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {isAuthenticated ? (
+            {!isMounted || isLoading ? (
+              // Loading state for hero button
+              <div className="bg-gray-200 px-6 py-3 rounded-lg animate-pulse flex items-center justify-center space-x-2">
+                <div className="w-24 h-5 bg-gray-300 rounded"></div>
+                <div className="w-5 h-5 bg-gray-300 rounded"></div>
+              </div>
+            ) : isAuthenticated ? (
               <Link 
                 href="/dashboard"
                 className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
@@ -212,6 +260,7 @@ export default function HomePage() {
             ) : (
               <button 
                 onClick={() => setIsAuthModalOpen(true)}
+                data-auth-button="sign-in"
                 className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
               >
                 <span>Get Started</span>

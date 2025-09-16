@@ -25,6 +25,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [authVersion, setAuthVersion] = useState(0) // Force re-render when auth state changes
 
   // Initialize auth state from localStorage
   useEffect(() => {
@@ -41,8 +42,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const response = await apiClient.getCurrentUser()
           
           if (response.success && response.data) {
+            console.log('AuthContext: Initializing with existing user:', response.data.name)
             setUser(response.data)
             setToken(storedToken)
+            setAuthVersion(prev => prev + 1) // Force re-render
           } else {
             // Token is invalid, clear stored data
             localStorage.removeItem('auth_token')
@@ -72,8 +75,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (response.success && response.data) {
         const { user: userData, token: authToken } = response.data
         
+        console.log('AuthContext: Setting user data after successful login:', userData.name)
+        
         setUser(userData)
         setToken(authToken)
+        setAuthVersion(prev => prev + 1) // Force re-render
         
         // Store in localStorage
         localStorage.setItem('auth_token', authToken)
@@ -81,6 +87,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         // Set token in API client
         apiClient.setAuthToken(authToken)
+        
+        console.log('AuthContext: State updated, user authenticated:', !!userData && !!authToken)
         
         return true
       } else {
@@ -113,6 +121,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('AuthContext: Registration successful, setting user data')
         setUser(userData)
         setToken(authToken)
+        setAuthVersion(prev => prev + 1) // Force re-render
         
         // Store in localStorage
         localStorage.setItem('auth_token', authToken)
@@ -144,6 +153,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Clear state regardless of API success
       setUser(null)
       setToken(null)
+      setAuthVersion(prev => prev + 1) // Force re-render
       
       // Clear localStorage
       localStorage.removeItem('auth_token')
@@ -181,6 +191,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     refreshAuth,
   }
+
+  // Debug logging
+  console.log('AuthContext: Rendering with state:', {
+    hasUser: !!user,
+    userName: user?.name,
+    hasToken: !!token,
+    isAuthenticated: !!user && !!token,
+    isLoading,
+    authVersion
+  })
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
