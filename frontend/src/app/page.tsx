@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Users, MessageSquare, Settings, Menu, X, LogIn, Home, ArrowRight, LogOut, User } from 'lucide-react'
+import { Users, MessageSquare, Settings, Menu, X, LogIn, Home, ArrowRight, LogOut } from 'lucide-react'
 import AuthModal from '@/components/AuthModal'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
