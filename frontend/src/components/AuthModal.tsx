@@ -63,6 +63,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       let success = false
       
+      console.log(`AuthModal: Attempting ${isSignUp ? 'registration' : 'login'} for:`, formData.email)
+      
       if (isSignUp) {
         success = await register(formData.name, formData.email, formData.password)
       } else {
@@ -70,6 +72,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       }
       
       if (success) {
+        console.log('AuthModal: Authentication successful')
         onClose()
         // Reset form
         setFormData({
@@ -79,13 +82,52 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           confirmPassword: ''
         })
       } else {
+        console.log('AuthModal: Authentication failed - no success response')
         setErrors({
-          submit: isSignUp ? 'Registration failed. Please try again.' : 'Invalid credentials. Please try again.'
+          submit: isSignUp ? 'Registration failed. Please check your details and try again.' : 'Invalid email or password. Please try again.'
         })
       }
     } catch (error) {
+      console.error('AuthModal: Authentication error caught:', error)
+      let errorMessage = 'An unexpected error occurred. Please try again.'
+      
+      // Handle specific error types
+      if (error instanceof Error) {
+        console.log('AuthModal: Error message analysis:', error.message)
+        
+        // Network connectivity issues
+        if (error.message.includes('fetch') || error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+          errorMessage = 'Unable to connect to server. Please check your internet connection and try again.'
+        }
+        // Server errors
+        else if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
+          errorMessage = 'Server error occurred. Please try again in a few moments.'
+        }
+        // Conflict errors (user already exists)
+        else if (error.message.includes('409') || error.message.includes('already exists') || error.message.includes('conflict')) {
+          errorMessage = 'An account with this email already exists. Please sign in instead.'
+        }
+        // Bad request errors
+        else if (error.message.includes('400') || error.message.includes('validation')) {
+          errorMessage = 'Please check your input and try again. Make sure your email is valid and password is at least 8 characters.'
+        }
+        // Unauthorized errors
+        else if (error.message.includes('401') || error.message.includes('unauthorized')) {
+          errorMessage = isSignUp ? 'Registration not authorized. Please try again.' : 'Invalid email or password.'
+        }
+        // Not found errors (API endpoint issues)
+        else if (error.message.includes('404') || error.message.includes('Not Found')) {
+          errorMessage = 'Service temporarily unavailable. Please try again later.'
+        }
+        // Use the actual error message if it's user-friendly
+        else if (error.message.length < 100 && !error.message.includes('TypeError') && !error.message.includes('undefined')) {
+          errorMessage = error.message
+        }
+      }
+      
+      console.log('AuthModal: Final error message:', errorMessage)
       setErrors({
-        submit: 'An unexpected error occurred. Please try again.'
+        submit: errorMessage
       })
     } finally {
       setIsLoading(false)

@@ -31,23 +31,46 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${this.authToken}`
     }
 
+    console.log(`API Request: ${options.method || 'GET'} ${url}`)
+
     try {
       const response = await fetch(url, {
         ...options,
         headers,
       })
 
+      console.log(`API Response: ${response.status} ${response.statusText}`)
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        const errorText = await response.text()
+        console.error(`API Error ${response.status}:`, errorText)
+        
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        
+        // Try to parse error response
+        try {
+          const errorData = JSON.parse(errorText)
+          if (errorData.message) {
+            errorMessage = errorData.message
+          }
+        } catch (e) {
+          // Use default error message
+        }
+        
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
+      console.log('API Success:', { endpoint, dataKeys: Object.keys(data) })
+      
       return {
         success: true,
         data,
         error: null
       }
     } catch (error) {
+      console.error(`API Request Failed for ${url}:`, error)
+      
       return {
         success: false,
         data: null,
@@ -58,10 +81,28 @@ class ApiClient {
 
   // Authentication
   async login(email: string, password: string): Promise<ApiResponse<{ user: User; token: string }>> {
-    return this.request('/auth/login', {
+    const response = await this.request<{ user: User; accessToken: string; expiresIn: number }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     })
+    
+    // Map backend response format to frontend expected format
+    if (response.success && response.data) {
+      return {
+        success: true,
+        data: {
+          user: response.data.user,
+          token: response.data.accessToken // Map accessToken to token
+        },
+        error: null
+      }
+    }
+    
+    return {
+      success: false,
+      data: null,
+      error: response.error
+    }
   }
 
   async register(userData: {
@@ -69,10 +110,28 @@ class ApiClient {
     email: string
     password: string
   }): Promise<ApiResponse<{ user: User; token: string }>> {
-    return this.request('/auth/register', {
+    const response = await this.request<{ user: User; accessToken: string; expiresIn: number }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     })
+    
+    // Map backend response format to frontend expected format
+    if (response.success && response.data) {
+      return {
+        success: true,
+        data: {
+          user: response.data.user,
+          token: response.data.accessToken // Map accessToken to token
+        },
+        error: null
+      }
+    }
+    
+    return {
+      success: false,
+      data: null,
+      error: response.error
+    }
   }
 
   async logout(): Promise<ApiResponse<null>> {

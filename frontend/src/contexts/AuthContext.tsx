@@ -98,11 +98,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true)
+      console.log('AuthContext: Starting registration for', email)
+      
       const response = await apiClient.register({ name, email, password })
+      console.log('AuthContext: Registration response received', { 
+        success: response.success, 
+        hasData: !!response.data,
+        error: response.error 
+      })
 
       if (response.success && response.data) {
         const { user: userData, token: authToken } = response.data
         
+        console.log('AuthContext: Registration successful, setting user data')
         setUser(userData)
         setToken(authToken)
         
@@ -115,11 +123,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         
         return true
       } else {
-        console.error('Registration failed:', response.error)
+        console.error('AuthContext: Registration failed with error:', response.error)
         return false
       }
     } catch (error) {
-      console.error('Registration error:', error)
+      console.error('AuthContext: Registration exception:', error)
       return false
     } finally {
       setIsLoading(false)
