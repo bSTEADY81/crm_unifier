@@ -92,15 +92,12 @@ export default function HomePage() {
               })}
               {isAuthenticated ? (
                 <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-2 rounded-md">
-                    <User size={16} />
-                    <span className="text-sm font-medium">{user?.name}</span>
-                  </div>
+                  <span className="text-sm text-gray-700">Welcome, <span className="font-medium text-blue-600">{user?.name}</span></span>
                   <button 
                     onClick={() => logout()}
-                    className="flex items-center space-x-1 bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 transition-colors"
+                    className="flex items-center space-x-1 bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 transition-colors text-sm"
                   >
-                    <LogOut size={16} />
+                    <LogOut size={14} />
                     <span>Sign Out</span>
                   </button>
                 </div>
@@ -161,9 +158,8 @@ export default function HomePage() {
               })}
               {isAuthenticated ? (
                 <>
-                  <div className="flex items-center space-x-2 w-full bg-green-50 text-green-700 px-3 py-2 rounded-md mb-2">
-                    <User size={20} />
-                    <span className="font-medium">{user?.name}</span>
+                  <div className="w-full bg-blue-50 text-blue-700 px-3 py-2 rounded-md mb-2">
+                    <span className="text-sm">Welcome, <span className="font-medium">{user?.name}</span></span>
                   </div>
                   <button 
                     onClick={() => {
