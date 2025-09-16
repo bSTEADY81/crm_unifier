@@ -1,13 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { Users, MessageSquare, Settings, Menu, X, LogIn, Home, ArrowRight } from 'lucide-react'
+import { Users, MessageSquare, Settings, Menu, X, LogIn, Home, ArrowRight, LogOut, User } from 'lucide-react'
 import AuthModal from '@/components/AuthModal'
 import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const { user, logout, isAuthenticated } = useAuth()
 
 
   const sections = [
@@ -88,13 +90,29 @@ export default function HomePage() {
                   </Link>
                 )
               })}
-              <button 
-                onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center space-x-1 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-              >
-                <LogIn size={16} />
-                <span>Sign In</span>
-              </button>
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-2 rounded-md">
+                    <User size={16} />
+                    <span className="text-sm font-medium">{user?.name}</span>
+                  </div>
+                  <button 
+                    onClick={() => logout()}
+                    className="flex items-center space-x-1 bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 transition-colors"
+                  >
+                    <LogOut size={16} />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="flex items-center space-x-1 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                >
+                  <LogIn size={16} />
+                  <span>Sign In</span>
+                </button>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -141,16 +159,35 @@ export default function HomePage() {
                   </Link>
                 )
               })}
-              <button 
-                onClick={() => {
-                  setIsAuthModalOpen(true)
-                  setIsMenuOpen(false)
-                }}
-                className="flex items-center space-x-2 w-full bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600"
-              >
-                <LogIn size={20} />
-                <span>Sign In</span>
-              </button>
+              {isAuthenticated ? (
+                <>
+                  <div className="flex items-center space-x-2 w-full bg-green-50 text-green-700 px-3 py-2 rounded-md mb-2">
+                    <User size={20} />
+                    <span className="font-medium">{user?.name}</span>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      logout()
+                      setIsMenuOpen(false)
+                    }}
+                    className="flex items-center space-x-2 w-full bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600"
+                  >
+                    <LogOut size={20} />
+                    <span>Sign Out</span>
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={() => {
+                    setIsAuthModalOpen(true)
+                    setIsMenuOpen(false)
+                  }}
+                  className="flex items-center space-x-2 w-full bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600"
+                >
+                  <LogIn size={20} />
+                  <span>Sign In</span>
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -168,13 +205,23 @@ export default function HomePage() {
             Unified customer correspondence platform
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              onClick={() => setIsAuthModalOpen(true)}
-              className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
-            >
-              <span>Get Started</span>
-              <ArrowRight size={20} />
-            </button>
+            {isAuthenticated ? (
+              <Link 
+                href="/dashboard"
+                className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
+              >
+                <span>Go to Dashboard</span>
+                <ArrowRight size={20} />
+              </Link>
+            ) : (
+              <button 
+                onClick={() => setIsAuthModalOpen(true)}
+                className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2"
+              >
+                <span>Get Started</span>
+                <ArrowRight size={20} />
+              </button>
+            )}
             <Link 
               href="/dashboard"
               className="bg-white text-blue-500 px-6 py-3 rounded-lg border-2 border-blue-500 hover:bg-blue-50 transition-colors text-center"
