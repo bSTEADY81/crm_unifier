@@ -18,7 +18,6 @@ import {
   Menu,
   X,
   BarChart3,
-  ExternalLink,
   Copy,
   Eye,
   EyeOff,
