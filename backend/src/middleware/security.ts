@@ -162,7 +162,7 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self'",
-    "connect-src 'self'",
+    "connect-src 'self' http://localhost:3001 http://localhost:3003",
     "media-src 'none'",
     "object-src 'none'",
     "child-src 'none'",

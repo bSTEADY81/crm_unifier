@@ -267,12 +267,14 @@ export default function HomePage() {
                 <ArrowRight size={20} />
               </button>
             )}
-            <Link 
-              href="/dashboard"
-              className="bg-white text-blue-500 px-6 py-3 rounded-lg border-2 border-blue-500 hover:bg-blue-50 transition-colors text-center"
-            >
-              View Dashboard
-            </Link>
+            {!isAuthenticated && (
+              <Link 
+                href="/dashboard"
+                className="bg-white text-blue-500 px-6 py-3 rounded-lg border-2 border-blue-500 hover:bg-blue-50 transition-colors text-center"
+              >
+                View Dashboard
+              </Link>
+            )}
           </div>
         </div>
 

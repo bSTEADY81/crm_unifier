@@ -77,7 +77,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'", // Tailwind requires unsafe-inline
               "img-src 'self' data: https://images.unsplash.com https://via.placeholder.com",
               "font-src 'self' data:",
-              "connect-src 'self' https://crmunifier-production.up.railway.app https://vercel.live",
+              "connect-src 'self' http://localhost:3001 https://crmunifier-production.up.railway.app https://vercel.live",
               "media-src 'none'",
               "object-src 'none'",
               "child-src 'none'",

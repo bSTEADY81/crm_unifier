@@ -46,39 +46,90 @@ async function main() {
   console.log('👤 Created viewer user:', viewerUser.email);
 
   // Create sample providers (inactive by default)
-  const twilioProvider = await prisma.provider.upsert({
-    where: { name: 'Twilio SMS (Demo)' },
+  const whatsappProvider = await prisma.provider.upsert({
+    where: { name: 'WhatsApp Business' },
     update: {},
     create: {
-      name: 'Twilio SMS (Demo)',
-      type: 'twilio_sms',
+      name: 'WhatsApp Business',
+      type: 'whatsapp',
       status: 'inactive',
       config: {
-        accountSid: 'DEMO_ACCOUNT_SID',
-        authToken: 'DEMO_AUTH_TOKEN',
+        accessToken: 'your_whatsapp_access_token',
+        phoneNumberId: 'your_phone_number_id',
+        webhookVerifyToken: 'your_webhook_verify_token',
+        encrypted: false
+      }
+    }
+  });
+  console.log('📱 Created WhatsApp provider:', whatsappProvider.name);
+
+  const twilioProvider = await prisma.provider.upsert({
+    where: { name: 'Twilio SMS' },
+    update: {},
+    create: {
+      name: 'Twilio SMS',
+      type: 'sms',
+      status: 'inactive',
+      config: {
+        accountSid: 'your_twilio_account_sid',
+        authToken: 'your_twilio_auth_token',
         phoneNumber: '+1234567890',
-        encrypted: true
+        encrypted: false
       }
     }
   });
   console.log('📱 Created Twilio provider:', twilioProvider.name);
 
   const gmailProvider = await prisma.provider.upsert({
-    where: { name: 'Gmail (Demo)' },
+    where: { name: 'Gmail' },
     update: {},
     create: {
-      name: 'Gmail (Demo)',
-      type: 'gmail',
+      name: 'Gmail',
+      type: 'email',
       status: 'inactive',
       config: {
-        clientId: 'DEMO_CLIENT_ID',
-        clientSecret: 'DEMO_CLIENT_SECRET',
-        refreshToken: 'DEMO_REFRESH_TOKEN',
-        encrypted: true
+        clientId: 'your_gmail_client_id',
+        clientSecret: 'your_gmail_client_secret',
+        refreshToken: 'your_gmail_refresh_token',
+        encrypted: false
       }
     }
   });
   console.log('📧 Created Gmail provider:', gmailProvider.name);
+
+  const facebookProvider = await prisma.provider.upsert({
+    where: { name: 'Facebook Messenger' },
+    update: {},
+    create: {
+      name: 'Facebook Messenger',
+      type: 'facebook',
+      status: 'inactive',
+      config: {
+        pageAccessToken: 'your_facebook_page_access_token',
+        webhookVerifyToken: 'your_facebook_webhook_verify_token',
+        appSecret: 'your_facebook_app_secret',
+        encrypted: false
+      }
+    }
+  });
+  console.log('📘 Created Facebook provider:', facebookProvider.name);
+
+  const instagramProvider = await prisma.provider.upsert({
+    where: { name: 'Instagram DM' },
+    update: {},
+    create: {
+      name: 'Instagram DM',
+      type: 'instagram',
+      status: 'inactive',
+      config: {
+        accessToken: 'your_instagram_access_token',
+        webhookVerifyToken: 'your_instagram_webhook_verify_token',
+        appSecret: 'your_instagram_app_secret',
+        encrypted: false
+      }
+    }
+  });
+  console.log('📷 Created Instagram provider:', instagramProvider.name);
 
   // Create sample customer (or find existing)
   let sampleCustomer = await prisma.customer.findFirst({

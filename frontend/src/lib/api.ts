@@ -265,7 +265,7 @@ class ApiClient {
   }
 
   // Providers
-  async getProviders(): Promise<ApiResponse<Provider[]>> {
+  async getProviders(): Promise<ApiResponse<{ providers: Provider[]; pagination?: any }>> {
     return this.request('/providers')
   }
 
