@@ -74,7 +74,13 @@ export default function ProvidersPage() {
       const response = await apiClient.getProviders()
       
       if (response.success && response.data) {
-        setProviders(response.data.providers || [])
+        // Map API providers to UI providers with required fields
+        const uiProviders: Provider[] = (response.data.providers || []).map((p: any) => ({
+          ...p,
+          isActive: typeof p.isActive === 'boolean' ? p.isActive : p.status === 'active',
+          messageCount: typeof p.messageCount === 'number' ? p.messageCount : 0,
+        }))
+        setProviders(uiProviders)
         setError(null)
       } else {
         throw new Error(response.error || 'Failed to fetch providers')
