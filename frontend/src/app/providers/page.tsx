@@ -147,8 +147,8 @@ export default function ProvidersPage() {
         setConnectionResults(prev => ({
           ...prev,
           [provider.id]: {
-            status: response.data.status === 'success' ? 'success' : 'error',
-            message: response.data.message || 'Connection test completed'
+            status: response.data?.status === 'success' ? 'success' : 'error',
+            message: response.data?.message || 'Connection test completed'
           }
         }))
       } else {
