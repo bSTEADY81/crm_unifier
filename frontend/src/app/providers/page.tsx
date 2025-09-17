@@ -19,8 +19,6 @@ import {
   X,
   BarChart3,
   Copy,
-  Eye,
-  EyeOff,
   Loader2
 } from 'lucide-react'
 import Link from 'next/link'
