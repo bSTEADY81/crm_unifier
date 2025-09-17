@@ -43,7 +43,6 @@ interface Provider {
 
 export default function ProvidersPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [showApiKey, setShowApiKey] = useState<Record<string, boolean>>({})
   const [testingConnection, setTestingConnection] = useState<Record<string, boolean>>({})
   const [connectionResults, setConnectionResults] = useState<Record<string, {status: 'success' | 'error', message: string} | null>>({})
   
