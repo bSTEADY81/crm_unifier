@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
 
   if (!code) {
     // Redirect to Google OAuth
-    const clientId = process.env.GOOGLE_CLIENT_ID
-    const redirectUri = `${process.env.NEXTAUTH_URL}/api/auth/gmail`
+    const clientId = process.env['GOOGLE_CLIENT_ID']
+    const redirectUri = `${process.env['NEXTAUTH_URL']}/api/auth/gmail`
     
     const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth')
     authUrl.searchParams.set('client_id', clientId!)
@@ -36,11 +36,11 @@ export async function GET(request: NextRequest) {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_id: process.env.GOOGLE_CLIENT_ID!,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+        client_id: process.env['GOOGLE_CLIENT_ID']!,
+        client_secret: process.env['GOOGLE_CLIENT_SECRET']!,
         code,
         grant_type: 'authorization_code',
-        redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/gmail`,
+        redirect_uri: `${process.env['NEXTAUTH_URL']}/api/auth/gmail`,
       }),
     })
 
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     const userProfile = await userResponse.json()
 
     // Redirect back to providers page with tokens in URL hash (client-side only)
-    const redirectUrl = new URL('/providers', process.env.NEXTAUTH_URL!)
+    const redirectUrl = new URL('/providers', process.env['NEXTAUTH_URL']!)
     redirectUrl.hash = `gmail-auth=${encodeURIComponent(JSON.stringify({
       refresh_token: tokens.refresh_token,
       access_token: tokens.access_token,
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
     
   } catch (error) {
     console.error('Gmail OAuth error:', error)
-    const errorUrl = new URL('/providers', process.env.NEXTAUTH_URL!)
+    const errorUrl = new URL('/providers', process.env['NEXTAUTH_URL']!)
     errorUrl.searchParams.set('error', 'gmail_oauth_failed')
     return NextResponse.redirect(errorUrl.toString())
   }
