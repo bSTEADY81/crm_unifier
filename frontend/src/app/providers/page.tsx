@@ -130,12 +130,6 @@ export default function ProvidersPage() {
     }
   }
 
-  const toggleApiKey = (providerId: string) => {
-    setShowApiKey(prev => ({
-      ...prev,
-      [providerId]: !prev[providerId]
-    }))
-  }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
