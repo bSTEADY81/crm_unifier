@@ -14,7 +14,6 @@ import {
   Clock,
   Zap,
   Webhook,
-  Activity,
   Home,
   Menu,
   X,
